@@ -1,13 +1,12 @@
-'use strict';
-
+/* eslint-disable no-unused-vars */
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('students',{
+    return queryInterface.createTable('students', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
-        primaryKey:  true,
+        primaryKey: true,
       },
       name: {
         type: Sequelize.STRING,
@@ -15,14 +14,14 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       weight: {
-        type: Sequelize.NUMERIC,
+        type: Sequelize.FLOAT,
         allowNull: false,
       },
       height: {
-        type: Sequelize.NUMERIC,
+        type: Sequelize.FLOAT,
         allowNull: false,
       },
       created_at: {
@@ -32,10 +31,10 @@ module.exports = {
       updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-      }
-    })
+      },
+    });
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('students');
-  }
+  },
 };
