@@ -10,7 +10,7 @@ class UserController {
       password: Yup.string()
         .required()
         .min(6),
-      confirm_password: Yup.string().required(),
+      confirmPassword: Yup.string().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -23,7 +23,7 @@ class UserController {
       return res.status(400).json({ error: 'user alredy exist' });
     }
 
-    if (req.body.password !== req.body.confirm_password) {
+    if (req.body.password !== req.body.confirmPassword) {
       return res
         .status(401)
         .json({ error: 'password and confirm password are not the same' });
@@ -44,7 +44,7 @@ class UserController {
       oldPassword: Yup.string().min(6),
       password: Yup.string()
         .min(6)
-        .when('oldPassword', (password, field) =>
+        .when('oldPassword', (oldPassword, field) =>
           oldPassword ? field.required() : field
         ),
       confirmPassword: Yup.string().when('password', (password, field) =>
@@ -52,11 +52,32 @@ class UserController {
       ),
     });
 
-    if(!(await schema.isValid(req.body))){
-      return res.status(401).json({error: 'validation fail'});
+    if (!(await schema.isValid(req.body))) {
+      return res.status(401).json({ error: 'validation fail' });
     }
 
-    //Criar middleware, termina metodo update
+    const { name, email, oldPassword, password } = req.body;
+
+    const user = await User.findByPk(req.UserId);
+
+    if(email !== user.email){
+      const userExist = await User.findOne({ where: { email }})
+
+      if(userExist) {
+        return res.status(401).json({error: 'user alredy exist'});
+      }
+    }
+
+    if(oldPassword && !(await user.checkPassword(oldPassword))) {
+      return res.status(401).json({ error: 'password does not match' })
+    }
+
+    await user.update(req.body);
+
+    return res.json({
+      name,
+      email,
+    })
   }
 }
 
