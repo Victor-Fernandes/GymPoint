@@ -6,7 +6,7 @@ class UserController {
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
-      email: Yup.string().required(),
+      email: Yup.string().email().required(),
       password: Yup.string()
         .required()
         .min(6),
@@ -38,45 +38,13 @@ class UserController {
   }
 
   async update(req, res) {
-    const schema = Yup.object().shape({
-      name: Yup.string(),
-      email: Yup.string(),
-      oldPassword: Yup.string().min(6),
-      password: Yup.string()
-        .min(6)
-        .when('oldPassword', (oldPassword, field) =>
-          oldPassword ? field.required() : field
-        ),
-      confirmPassword: Yup.string().when('password', (password, field) =>
-        password ? field.required().oneOf([Yup.ref('password')]) : field
-      ),
-    });
+    const { email, name, password} = req.body;
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(401).json({ error: 'validation fail' });
-    }
+    const user = await User.findByPk(req.userId);
 
-    const { name, email, oldPassword, password } = req.body;
-
-    const user = await User.findByPk(req.UserId);
-
-    if(email !== user.email){
-      const userExist = await User.findOne({ where: { email }})
-
-      if(userExist) {
-        return res.status(401).json({error: 'user alredy exist'});
-      }
-    }
-
-    if(oldPassword && !(await user.checkPassword(oldPassword))) {
-      return res.status(401).json({ error: 'password does not match' })
-    }
-
-    await user.update(req.body);
-
+    console.log(email, name, password);
     return res.json({
-      name,
-      email,
+      email
     })
   }
 }
