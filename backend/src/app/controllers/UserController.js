@@ -58,23 +58,28 @@ class UserController {
       return res.status(400).json({ error: 'validations fails' });
     }
 
-    const { email, oldPassword } = req.body;
+    //const { oldPassword } = req.body;
 
     const user = await User.findByPk(req.userId);
 
-    if (email !== user.email) {
-      const userExist = await User.findOne({ where: { email } });
+    if (req.body.email) {
+      if (req.body.email !== user.email) {
+        const userExist = await User.findOne({
+          where: { email: req.body.email },
+        });
 
-      if (userExist) {
-        return res.status(401).json({ error: 'User alredy exist.' });
+        if (userExist) {
+          return res.status(401).json({ error: 'User alredy exist.' });
+        }
       }
     }
 
-    if (oldPassword && !(await user.checkPassword(oldPassword))) {
+    if (req.body.oldPassword && !(await user.checkPassword(req.body.oldPassword))) {
       return res.status(401).json({ error: 'Password does not match.' });
     }
-
-    const { name } = await user.update(req.body);
+     //Verificar se oldPassword e o novo password são iguais, caso sejam
+     //dar erro e forçar usuario a escolher uma nova senha.
+    const { name, email } = await user.update(req.body);
 
     return res.json({
       name,
